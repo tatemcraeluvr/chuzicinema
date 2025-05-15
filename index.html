@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
     h1 {
       color: #ff4b4b;
       font-size: 2.5em;
-      margin-bottom: 0.5em;
+      margin-bottom: 1em;
     }
 
     .topbar {
@@ -24,119 +24,84 @@
       margin-bottom: 1em;
     }
 
-    .tab {
-      padding: 0.5em 1em;
-      border: 2px solid #ff4b4b;
-      border-radius: 999px;
+    .topbar button {
       background: transparent;
+      border: 2px solid #ff4b4b;
       color: #ff4b4b;
-      font-weight: bold;
+      padding: 0.6em 1.4em;
+      border-radius: 999px;
+      font-size: 16px;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
-    .tab.active, .tab:hover {
+    .topbar button.active,
+    .topbar button:hover {
       background: #ff4b4b;
-      color: white;
+      color: #fff;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      margin-bottom: 2em;
     }
 
     input {
-      padding: 0.7em 1em;
+      padding: 0.7em;
       width: 300px;
       font-size: 16px;
       border-radius: 999px;
       border: 2px solid #ff4b4b;
       background: transparent;
       color: white;
-      outline: none;
     }
 
     .search-btn {
-      padding: 0.7em 1em;
+      padding: 0.7em 1.2em;
       font-size: 16px;
-      margin-left: 0.5em;
       background: #ff4b4b;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 999px;
       cursor: pointer;
-      transition: background-color 0.2s ease;
     }
 
-    .search-btn:hover {
-      background: #cc3c3c;
-    }
-
-    #result {
-      margin-top: 2em;
+    .results {
       display: flex;
-      gap: 1em;
       flex-wrap: wrap;
+      gap: 1.5em;
     }
 
-    .movie-card {
+    .card {
       background: #1a1a1a;
       border-radius: 10px;
-      width: 180px;
-      overflow: hidden;
-      position: relative;
-      flex-shrink: 0;
-      transition: transform 0.2s ease;
-    }
-
-    .movie-card:hover {
-      transform: scale(1.03);
-    }
-
-    .movie-card img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 10px 10px 0 0;
-    }
-
-    .movie-info {
-      padding: 0.8em;
-    }
-
-    .movie-title {
-      font-size: 1em;
-      font-weight: bold;
-      margin-bottom: 0.4em;
-    }
-
-    .movie-meta {
-      font-size: 0.85em;
-      color: #ccc;
+      padding: 1em;
+      width: 220px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.3em;
+      text-align: center;
     }
 
-    .badge {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: #ff4b4b;
-      color: #fff;
-      font-size: 0.75em;
-      padding: 0.2em 0.5em;
-      border-radius: 4px;
-      font-weight: bold;
+    .card img {
+      max-height: 300px;
+      border-radius: 8px;
+      margin-bottom: 1em;
     }
 
     .watch-btn {
-      display: block;
-      margin: 0.8em auto 1em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5em;
       color: #ff4b4b;
       background: transparent;
       border: 2px solid #ff4b4b;
       border-radius: 999px;
       font-weight: bold;
-      padding: 0.4em 1em;
+      padding: 0.6em 1.4em;
       font-size: 14px;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
     .watch-btn:hover {
@@ -144,15 +109,27 @@
       color: #fff;
     }
 
-    .star-icon {
-      width: 16px;
-      height: 16px;
+    .watch-btn svg {
       fill: #ff4b4b;
-      transition: fill 0.2s ease;
     }
 
-    .movie-meta:hover .star-icon {
-      fill: #ffc107;
+    .watch-btn:hover svg {
+      fill: #fff;
+    }
+
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3em;
+      margin: 0.5em 0;
+    }
+
+    .quality {
+      font-size: 13px;
+      background: #444;
+      border-radius: 5px;
+      padding: 2px 6px;
+      margin-top: 0.4em;
     }
   </style>
 </head>
@@ -160,30 +137,32 @@
   <h1>chuzi's cinema ♡</h1>
 
   <div class="topbar">
-    <button class="tab active" id="movieTab" onclick="setType('movie')">Movies</button>
-    <button class="tab" id="tvTab" onclick="setType('series')">TV Series</button>
+    <button id="modeMovie" class="active" onclick="setMode('movie')">Movies</button>
+    <button id="modeSeries" onclick="setMode('series')">TV Series</button>
   </div>
 
-  <input type="text" id="movieInput" placeholder="Search..." />
-  <button class="search-btn" onclick="findMovie()">Search</button>
+  <div class="search-bar">
+    <input type="text" id="movieInput" placeholder="Enter a title..." />
+    <button class="search-btn" onclick="findMedia()">Search</button>
+  </div>
 
-  <div id="result"></div>
+  <div id="result" class="results"></div>
 
   <script>
     const API_KEY = '951a6e7d';
-    let currentType = 'movie';
+    let currentMode = 'movie';
 
-    function setType(type) {
-      currentType = type;
-      document.getElementById('movieTab').classList.toggle('active', type === 'movie');
-      document.getElementById('tvTab').classList.toggle('active', type === 'series');
-      findMovie();
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('modeMovie').classList.remove('active');
+      document.getElementById('modeSeries').classList.remove('active');
+      document.getElementById('mode' + (mode === 'movie' ? 'Movie' : 'Series')).classList.add('active');
     }
 
-    async function findMovie() {
+    async function findMedia() {
       const input = document.getElementById('movieInput').value.trim();
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = 'Searching...';
+      resultDiv.innerHTML = '';
 
       if (!input) {
         resultDiv.innerHTML = 'Please enter a title.';
@@ -191,45 +170,39 @@
       }
 
       try {
-        const searchUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(input)}&type=${currentType}`;
+        const searchUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(input)}&type=${currentMode}`;
         const searchRes = await fetch(searchUrl);
         const searchData = await searchRes.json();
 
         if (searchData.Response === 'False' || !searchData.Search?.length) {
-          resultDiv.innerHTML = 'No results found.';
+          resultDiv.innerHTML = 'Nothing found.';
           return;
         }
 
-        resultDiv.innerHTML = '';
+        const filtered = searchData.Search.filter(item => item.Type === currentMode);
+        for (const item of filtered) {
+          const detailsUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${item.imdbID}`;
+          const detailsRes = await fetch(detailsUrl);
+          const movie = await detailsRes.json();
 
-        for (const item of searchData.Search) {
-          const detailUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${item.imdbID}`;
-          const detailRes = await fetch(detailUrl);
-          const data = await detailRes.json();
-
-          if (data.Type !== currentType) continue; // Filter out extras
-
-          const quality = guessQuality(data);
-          const card = document.createElement('div');
-          card.className = 'movie-card';
-          card.innerHTML = `
-            <div class="badge">${quality}</div>
-            ${data.Poster !== 'N/A' ? `<img src="${data.Poster}" alt="Poster" />` : ''}
-            <div class="movie-info">
-              <div class="movie-title">${data.Title}</div>
-              <div class="movie-meta">
-                <svg class="star-icon" viewBox="0 0 24 24">
-                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 
-                           9.24l-7.19-.61L12 2 9.19 8.63 
-                           2 9.24l5.46 4.73L5.82 21z"/>
-                </svg>
-                ${data.imdbRating}
+          const quality = ['movie', 'series'].includes(movie.Type) ? 'HD' : 'SD';
+          resultDiv.innerHTML += `
+            <div class="card">
+              ${movie.Poster !== 'N/A' ? `<img src="${movie.Poster}" alt="Poster" />` : ''}
+              <strong>${movie.Title}</strong>
+              <div class="rating">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff4b4b"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                ${movie.imdbRating}
               </div>
-              <div class="movie-meta">${data.Year} • ${data.Runtime || 'N/A'}</div>
+              <div class="quality">${quality}</div>
+              <button class="watch-btn" onclick="openPlayer('${movie.imdbID}', '${movie.Type}', '${movie.Title.replace(/'/g, "\\'")}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M5 3L19 12L5 21V3Z"/>
+                </svg>
+                Watch now
+              </button>
             </div>
-            <button class="watch-btn" onclick="watchMovie('${data.imdbID}')">Watch Now</button>
           `;
-          resultDiv.appendChild(card);
         }
       } catch (error) {
         console.error(error);
@@ -237,34 +210,91 @@
       }
     }
 
-    function guessQuality(data) {
-      const rating = parseFloat(data.imdbRating);
-      if (!rating || isNaN(rating)) return 'SD';
-      if (rating >= 7.5) return 'HD';
-      if (rating >= 6.5) return 'TS';
-      return 'CAM';
-    }
+    function openPlayer(imdbID, type, title) {
+      const win = window.open('', '_blank');
+      let content = '';
 
-    async function watchMovie(imdbID) {
-      const embedURL = `https://www.2embed.cc/embed/${imdbID}`;
-      let finalURL = embedURL;
+      if (type === 'movie') {
+        const test2embed = new Image();
+        test2embed.src = `https://www.2embed.cc/embed/${imdbID}`;
+        test2embed.onload = () => {
+          content = `<iframe src="https://www.2embed.cc/embed/${imdbID}" allowfullscreen></iframe>`;
+          win.document.write(content);
+        };
+        test2embed.onerror = () => {
+          content = `<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" allowfullscreen></iframe>`;
+          win.document.write(content);
+        };
+      } else {
+        win.document.write(`
+          <style>
+            body { margin: 0; display: flex; background: #0d0d0d; color: white; font-family: sans-serif; }
+            iframe { border: none; width: 100%; height: 100vh; }
+            .sidebar {
+              width: 220px;
+              background: #1a1a1a;
+              padding: 1em;
+              display: flex;
+              flex-direction: column;
+              gap: 1em;
+            }
+            select {
+              padding: 0.5em;
+              border-radius: 5px;
+              border: none;
+              background: #333;
+              color: white;
+            }
+          </style>
+          <div class="sidebar">
+            <h3>${title}</h3>
+            <label>Season: <select id="seasonSelect"></select></label>
+            <label>Episode: <select id="episodeSelect"></select></label>
+          </div>
+          <iframe id="tvPlayer" src=""></iframe>
+          <script>
+            const imdbID = "${imdbID}";
+            async function loadSeasons() {
+              const res = await fetch("https://www.omdbapi.com/?apikey=${API_KEY}&i=" + imdbID + "&type=series");
+              const data = await res.json();
+              const total = parseInt(data.totalSeasons);
+              const select = document.getElementById("seasonSelect");
+              for (let i = 1; i <= total; i++) {
+                select.innerHTML += "<option value='" + i + "'>Season " + i + "</option>";
+              }
+              select.value = "1";
+              loadEpisodes(1);
+            }
 
-      try {
-        const test = await fetch(embedURL, { method: 'HEAD' });
-        if (!test.ok) throw new Error('2embed down');
-      } catch {
-        finalURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
+            async function loadEpisodes(season) {
+              const res = await fetch("https://www.omdbapi.com/?apikey=${API_KEY}&i=" + imdbID + "&Season=" + season);
+              const data = await res.json();
+              const select = document.getElementById("episodeSelect");
+              select.innerHTML = "";
+              data.Episodes.forEach((ep, i) => {
+                select.innerHTML += "<option value='" + (i+1) + "'>Episode " + (i+1) + "</option>";
+              });
+              select.value = "1";
+              loadPlayer(season, 1);
+            }
+
+            function loadPlayer(season, episode) {
+              document.getElementById("tvPlayer").src = "https://www.2embed.cc/embedtv/" + imdbID + "&s=" + season + "&e=" + episode;
+            }
+
+            document.getElementById("seasonSelect").addEventListener("change", e => {
+              loadEpisodes(e.target.value);
+            });
+
+            document.getElementById("episodeSelect").addEventListener("change", e => {
+              const season = document.getElementById("seasonSelect").value;
+              loadPlayer(season, e.target.value);
+            });
+
+            loadSeasons();
+          <\/script>
+        `);
       }
-
-      const newTab = window.open("about:blank", "_blank");
-      newTab.document.write(`
-        <body style="margin:0;background:#000;">
-          <iframe src="${finalURL}" 
-                  style="width:100%;height:100vh;border:none;" 
-                  allowfullscreen>
-          </iframe>
-        </body>
-      `);
     }
   </script>
 </body>
