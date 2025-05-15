@@ -19,13 +19,14 @@
     }
 
     input {
-      padding: 0.7em;
+      padding: 0.7em 1em;
       width: 300px;
       font-size: 16px;
-      border-radius: 6px;
-      border: none;
-      background: #1c1c1c;
+      border-radius: 999px;
+      border: 2px solid #ff4b4b;
+      background: transparent;
       color: white;
+      outline: none;
     }
 
     .search-btn {
@@ -74,11 +75,11 @@
       fill: #fff;
     }
 
-    #result {
-      margin-top: 2em;
+    .movie-card {
       background: #1a1a1a;
       padding: 1.5em;
       border-radius: 10px;
+      margin-bottom: 2em;
       max-width: 800px;
     }
 
@@ -92,7 +93,7 @@
       width: 100%;
       height: 450px;
       border: none;
-      margin-bottom: 1em;
+      margin-top: 1em;
       border-radius: 8px;
     }
 
@@ -103,7 +104,7 @@
 </head>
 <body>
   <h1>chuzi's cinema ♡</h1>
-    <p>Find a movie or TV show using the search bar below.</p>
+  <p>Find a movie or TV show using the search bar below.</p>
   <input type="text" id="movieInput" placeholder="Enter a movie title" />
   <button class="search-btn" onclick="findMovie()">Search</button>
 
@@ -128,54 +129,64 @@
         const searchData = await searchRes.json();
 
         if (searchData.Response === 'False' || !searchData.Search?.length) {
-          resultDiv.innerHTML = 'Movie not found.';
+          resultDiv.innerHTML = 'No movies found.';
           return;
         }
 
-        const firstMatch = searchData.Search[0];
-        const imdbID = firstMatch.imdbID;
-        const movieUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${imdbID}`;
-        const movieRes = await fetch(movieUrl);
-        const movie = await movieRes.json();
+        resultDiv.innerHTML = '';
 
-        resultDiv.innerHTML = `
-          <div id="playerBox" class="hidden"></div>
-          <h2>${movie.Title} (${movie.Year})</h2>
-          <p><strong>Genre:</strong> ${movie.Genre}</p>
-          <p><strong>Plot:</strong> ${movie.Plot}</p>
-          <p><strong>IMDb Rating:</strong>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff4c4c" style="vertical-align: middle;">
-            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-           </svg>
-           ${movie.imdbRating}
-          </p>
+        for (const movie of searchData.Search) {
+          const movieUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${movie.imdbID}`;
+          const movieRes = await fetch(movieUrl);
+          const movieData = await movieRes.json();
 
-          ${movie.Poster !== 'N/A' ? `<img src="${movie.Poster}" alt="Poster" />` : ''}
-          <br />
-          <button id="watchBtn" class="watch-btn" onclick="watchMovie('${movie.imdbID}')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-              <path d="M5 3L19 12L5 21V3Z"/>
-            </svg>
-            Watch now
-          </button>
-        `;
+          const movieElement = document.createElement('div');
+          movieElement.classList.add('movie-card');
+          movieElement.innerHTML = `
+            <h2>${movieData.Title} (${movieData.Year})</h2>
+            <p><strong>Genre:</strong> ${movieData.Genre}</p>
+            <p><strong>Plot:</strong> ${movieData.Plot}</p>
+            <p><strong>IMDb Rating:</strong>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff4c4c" style="vertical-align: middle;">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              </svg>
+              ${movieData.imdbRating}
+            </p>
+            ${movieData.Poster !== 'N/A' ? `<img src="${movieData.Poster}" alt="Poster" />` : ''}
+            <div id="playerBox-${movieData.imdbID}" class="hidden"></div>
+            <button class="watch-btn" onclick="watchMovie('${movieData.imdbID}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path d="M5 3L19 12L5 21V3Z"/>
+              </svg>
+              Watch now
+            </button>
+          `;
+
+          resultDiv.appendChild(movieElement);
+        }
       } catch (error) {
         console.error(error);
         resultDiv.innerHTML = 'Error fetching movie info.';
       }
     }
 
-    function watchMovie(imdbID) {
-      const playerBox = document.getElementById('playerBox');
-      const watchBtn = document.getElementById('watchBtn');
+    async function watchMovie(imdbID) {
+      const playerBox = document.getElementById(`playerBox-${imdbID}`);
+      const embedURL = `https://www.2embed.cc/embed/${imdbID}`;
+
+      try {
+        // Check if 2embed is up
+        const test = await fetch(embedURL, { method: 'HEAD' });
+        if (!test.ok) throw new Error('2embed down');
+        playerBox.innerHTML = `<iframe src="${embedURL}" allowfullscreen></iframe>`;
+      } catch {
+        // Fallback to vidsrc
+        const fallbackURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
+        playerBox.innerHTML = `<iframe src="${fallbackURL}" allowfullscreen></iframe>`;
+      }
+
       playerBox.classList.remove('hidden');
-      playerBox.innerHTML = `
-        <iframe src="https://www.2embed.cc/embed/${imdbID}" allowfullscreen></iframe>
-      `;
-      watchBtn.classList.add('hidden');
     }
   </script>
 </body>
 </html>
-
-
