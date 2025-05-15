@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,29 @@
     h1 {
       color: #ff4b4b;
       font-size: 2.5em;
+      margin-bottom: 0.5em;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 1em;
       margin-bottom: 1em;
+    }
+
+    .tab {
+      padding: 0.5em 1em;
+      border: 2px solid #ff4b4b;
+      border-radius: 999px;
+      background: transparent;
+      color: #ff4b4b;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active, .tab:hover {
+      background: #ff4b4b;
+      color: white;
     }
 
     input {
@@ -132,22 +154,31 @@
     .movie-meta:hover .star-icon {
       fill: #ffc107;
     }
-
-    .hidden {
-      display: none;
-    }
   </style>
 </head>
 <body>
   <h1>chuzi's cinema ♡</h1>
-  <p>Find a movie or TV show using the search bar below.</p>
-  <input type="text" id="movieInput" placeholder="Enter a movie title" />
+
+  <div class="topbar">
+    <button class="tab active" id="movieTab" onclick="setType('movie')">Movies</button>
+    <button class="tab" id="tvTab" onclick="setType('series')">TV Series</button>
+  </div>
+
+  <input type="text" id="movieInput" placeholder="Search..." />
   <button class="search-btn" onclick="findMovie()">Search</button>
 
   <div id="result"></div>
 
   <script>
     const API_KEY = '951a6e7d';
+    let currentType = 'movie';
+
+    function setType(type) {
+      currentType = type;
+      document.getElementById('movieTab').classList.toggle('active', type === 'movie');
+      document.getElementById('tvTab').classList.toggle('active', type === 'series');
+      findMovie();
+    }
 
     async function findMovie() {
       const input = document.getElementById('movieInput').value.trim();
@@ -155,58 +186,59 @@
       resultDiv.innerHTML = 'Searching...';
 
       if (!input) {
-        resultDiv.innerHTML = 'Please enter a movie title.';
+        resultDiv.innerHTML = 'Please enter a title.';
         return;
       }
 
       try {
-        const searchUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(input)}`;
+        const searchUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(input)}&type=${currentType}`;
         const searchRes = await fetch(searchUrl);
         const searchData = await searchRes.json();
 
         if (searchData.Response === 'False' || !searchData.Search?.length) {
-          resultDiv.innerHTML = 'No movies found.';
+          resultDiv.innerHTML = 'No results found.';
           return;
         }
 
         resultDiv.innerHTML = '';
 
-        for (const movie of searchData.Search) {
-          const movieUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${movie.imdbID}`;
-          const movieRes = await fetch(movieUrl);
-          const movieData = await movieRes.json();
+        for (const item of searchData.Search) {
+          const detailUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${item.imdbID}`;
+          const detailRes = await fetch(detailUrl);
+          const data = await detailRes.json();
 
-          const quality = guessQuality(movieData);
+          if (data.Type !== currentType) continue; // Filter out extras
+
+          const quality = guessQuality(data);
           const card = document.createElement('div');
           card.className = 'movie-card';
           card.innerHTML = `
             <div class="badge">${quality}</div>
-            ${movieData.Poster !== 'N/A' ? `<img src="${movieData.Poster}" alt="Poster" />` : ''}
+            ${data.Poster !== 'N/A' ? `<img src="${data.Poster}" alt="Poster" />` : ''}
             <div class="movie-info">
-              <div class="movie-title">${movieData.Title}</div>
+              <div class="movie-title">${data.Title}</div>
               <div class="movie-meta">
                 <svg class="star-icon" viewBox="0 0 24 24">
                   <path d="M12 17.27L18.18 21l-1.64-7.03L22 
                            9.24l-7.19-.61L12 2 9.19 8.63 
                            2 9.24l5.46 4.73L5.82 21z"/>
                 </svg>
-                ${movieData.imdbRating}
+                ${data.imdbRating}
               </div>
-              <div class="movie-meta">${movieData.Year} • ${movieData.Runtime || 'N/A'}</div>
+              <div class="movie-meta">${data.Year} • ${data.Runtime || 'N/A'}</div>
             </div>
-            <button class="watch-btn" onclick="watchMovie('${movieData.imdbID}')">Watch Now</button>
+            <button class="watch-btn" onclick="watchMovie('${data.imdbID}')">Watch Now</button>
           `;
-
           resultDiv.appendChild(card);
         }
       } catch (error) {
         console.error(error);
-        resultDiv.innerHTML = 'Error fetching movie info.';
+        resultDiv.innerHTML = 'Error fetching data.';
       }
     }
 
-    function guessQuality(movie) {
-      const rating = parseFloat(movie.imdbRating);
+    function guessQuality(data) {
+      const rating = parseFloat(data.imdbRating);
       if (!rating || isNaN(rating)) return 'SD';
       if (rating >= 7.5) return 'HD';
       if (rating >= 6.5) return 'TS';
