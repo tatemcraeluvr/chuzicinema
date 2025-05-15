@@ -218,11 +218,13 @@
         const test2embed = new Image();
         test2embed.src = `https://www.2embed.cc/embed/${imdbID}`;
         test2embed.onload = () => {
-          content = `<iframe src="https://www.2embed.cc/embed/${imdbID}" allowfullscreen></iframe>`;
+          content = `<iframe src="https://www.2embed.cc/embed/${imdbID}" style="width:100%;height:100vh;border:none;" 
+                  allowfullscreen>
           win.document.write(content);
         };
         test2embed.onerror = () => {
-          content = `<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" allowfullscreen></iframe>`;
+          content = `<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" style="width:100%;height:100vh;border:none;" 
+                  allowfullscreen>
           win.document.write(content);
         };
       } else {
@@ -279,7 +281,7 @@
             }
 
             function loadPlayer(season, episode) {
-              document.getElementById("tvPlayer").src = "https://www.2embed.cc/embedtv/" + imdbID + "&s=" + season + "&e=" + episode;
+              document.getElementById("tvPlayer").src = "https://vidsrc.xyz/embed/tv?imdb=" + imdbID + "&s=" + season + "&e=" + episode;
             }
 
             document.getElementById("seasonSelect").addEventListener("change", e => {
