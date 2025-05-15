@@ -176,7 +176,6 @@
             <div class="movie-meta">${movieData.Year} • ${movieData.Runtime || 'N/A'}</div>
             <div class="movie-meta">IMDb: ${movieData.imdbRating}</div>
           </div>
-          <div id="playerBox-${movieData.imdbID}" class="hidden"></div>
           <button class="watch-btn" onclick="watchMovie('${movieData.imdbID}')">Watch Now</button>
         `;
 
