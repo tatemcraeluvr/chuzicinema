@@ -218,13 +218,13 @@
         const test2embed = new Image();
         test2embed.src = `https://www.2embed.cc/embed/${imdbID}`;
         test2embed.onload = () => {
-          content = `<iframe src="https://www.2embed.cc/embed/${imdbID}" style="width:100%;height:100vh;border:none;" 
-                  allowfullscreen>
+content = `<iframe src="https://www.2embed.cc/embed/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`;
+
           win.document.write(content);
         };
         test2embed.onerror = () => {
-          content = `<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" style="width:100%;height:100vh;border:none;" 
-                  allowfullscreen>
+content = `<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`;
+
           win.document.write(content);
         };
       } else {
