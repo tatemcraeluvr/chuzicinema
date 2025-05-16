@@ -58,7 +58,18 @@
   </div>
 
   <script>
-    const CORRECT_KEY = "your-secret-key"; // replace with your actual key
+    let correctKey = null;
+
+    async function fetchKey() {
+      try {
+        const response = await fetch("protected/key.json");
+        const data = await response.json();
+        correctKey = data.key;
+        autoRedirectIfValid();
+      } catch (err) {
+        document.getElementById('errorMsg').textContent = "Failed to load key.";
+      }
+    }
 
     function setCookie(name, value) {
       const d = new Date();
@@ -74,7 +85,7 @@
 
     function checkKey() {
       const inputKey = document.getElementById('keyInput').value;
-      if (inputKey === CORRECT_KEY) {
+      if (inputKey === correctKey) {
         setCookie('authKey', inputKey);
         window.location.href = "home.html";
       } else {
@@ -82,13 +93,15 @@
       }
     }
 
-    // Auto redirect if cookie is already valid
-    window.onload = function() {
+    function autoRedirectIfValid() {
       const storedKey = getCookie('authKey');
-      if (storedKey === CORRECT_KEY) {
+      if (storedKey === correctKey) {
         window.location.href = "home.html";
       }
-    };
+    }
+
+    // Run on page load
+    fetchKey();
   </script>
 </body>
 </html>
