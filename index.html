@@ -139,22 +139,18 @@
 </head>
 <body>
   <header>
-    <div class="topbar">
-      <button id="movieBtn" class="active">Movies</button>
-      <button id="seriesBtn">Series</button>
-    </div>
-  </header>
 
-  <div class="search-container">
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search for a movie or series..."/>
-    <button class="search-btn" onclick="findMedia()">Search</button>
-
-
-    </div>
+  <div class="topbar">
+    <button id="modeMovie" class="active" onclick="setMode('movie')">Movies</button>
+    <button id="modeSeries" onclick="setMode('series')">TV Series</button>
   </div>
 
-  <div class="results" id="results"></div>
+  <div class="search-bar">
+    <input type="text" id="movieInput" placeholder="Enter a title..." />
+    <button class="search-btn" onclick="findMedia()">Search</button>
+  </div>
+
+  <div id="result" class="results"></div>
 
   <footer>
     © 2025 chuzi's cinema. All rights reserved.
