@@ -248,6 +248,38 @@ footer {
   </footer>
 
 <script>
+    // Function to get cookie value by name
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  // Check cookie on page load
+  (async function() {
+    const key = getCookie('authKey');
+    if (!key) {
+      // No key found, redirect to index
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Fetch the correct key from the protected key file
+    try {
+      const response = await fetch('protected/key.json');
+      if (!response.ok) throw new Error('Key fetch failed');
+      const data = await response.json();
+
+      if (key !== data.key) {
+        // Key in cookie doesn't match the correct key
+        window.location.href = 'index.html';
+      }
+      // else: key matches, allow access (do nothing)
+    } catch (err) {
+      // On error fetching key, redirect to index
+      window.location.href = 'index.html';
+    }
+  })();
   const API_KEY = '951a6e7d';
   let currentMode = 'movie';
 
