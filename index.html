@@ -195,7 +195,7 @@
                 ${movie.imdbRating}
               </div>
               <div class="quality">${quality}</div>
-              <button class="watch-btn" onclick="openPlayer('${movie.imdbID}', '${movie.Type}', '${movie.Title.replace(/'/g, "\\'")}')">
+              <button class="watch-btn" onclick="openPlayer('${movie.imdbID}', '${movie.Type}', \`${movie.Title.replace(/`/g, '\\`')}\`)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                   <path d="M5 3L19 12L5 21V3Z"/>
                 </svg>
@@ -212,20 +212,14 @@
 
     function openPlayer(imdbID, type, title) {
       const win = window.open('', '_blank');
-      let content = '';
-
       if (type === 'movie') {
         const test2embed = new Image();
         test2embed.src = `https://www.2embed.cc/embed/${imdbID}`;
         test2embed.onload = () => {
-content = `<iframe src="https://www.2embed.cc/embed/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`;
-
-          win.document.write(content);
+          win.document.write(`<iframe src="https://www.2embed.cc/embed/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`);
         };
         test2embed.onerror = () => {
-content = `<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`;
-
-          win.document.write(content);
+          win.document.write(`<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`);
         };
       } else {
         win.document.write(`
