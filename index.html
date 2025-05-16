@@ -241,7 +241,11 @@
           <label>Season: <select id="seasonSelect"></select></label>
           <label>Episode: <select id="episodeSelect"></select></label>
         </div>
-        <iframe id="tvPlayer" src=""></iframe>
+        <iframe 
+        id="tvPlayer" 
+        src=""
+        allowfullscreen 
+        allow="fullscreen"></iframe>
         <script>
           const imdbID = "${imdbID}";
           async function loadSeasons() {
