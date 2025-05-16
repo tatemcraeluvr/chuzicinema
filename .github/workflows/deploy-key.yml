@@ -1,0 +1,22 @@
+name: Deploy Site with Key
+
+on:
+  push:
+    branches: [main]  # or your default branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Write key to JSON file
+        run: |
+          mkdir -p public/protected
+          echo "{\"key\": \"${{ secrets.ACCESS_KEY }}\"}" > public/protected/key.json
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
