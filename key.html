@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Enter Access Key</title>
+  <style>
+    body {
+      background-color: #0d0d0d;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    input, button {
+      padding: 0.7em 1em;
+      margin-top: 1em;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    input {
+      background: #1a1a1a;
+      color: white;
+      border: 1px solid #e50914;
+    }
+    button {
+      background-color: #e50914;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ff1f1f;
+    }
+    .error {
+      color: #ff4b4b;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>chuzi's cinema ♡</h1>
+  <p>Please enter the access key:</p>
+  <input type="password" id="keyInput" placeholder="Access key..." />
+  <button onclick="checkKey()">Enter</button>
+  <div id="error" class="error"></div>
+
+  <script>
+    const ACCESS_KEY = "__ACCESS_KEY__";
+
+    function checkKey() {
+      const inputKey = document.getElementById('keyInput').value.trim();
+      if (inputKey === ACCESS_KEY) {
+        // Redirect to your main page
+        window.location.href = "index.html";
+      } else {
+        document.getElementById('error').textContent = "Incorrect key.";
+      }
+    }
+  </script>
+</body>
+</html>
