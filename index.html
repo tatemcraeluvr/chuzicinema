@@ -56,65 +56,29 @@
     <button onclick="checkKey()">Submit</button>
     <div id="errorMsg" class="error"></div>
   </div>
+
   <div id="cookieConsent" style="
-  position: fixed;
-  bottom: 0;
-  background: #222;
-  color: white;
-  width: 100%;
-  padding: 1em;
-  text-align: center;
-  z-index: 9999;
-  display: none;
-">
-  This site uses cookies to remember your access key. 
-  <button id="acceptCookies" style="margin-left: 10px; padding: 0.5em 1em; background: #e50914; border: none; color: white; border-radius: 5px; cursor: pointer;">
-    Accept
-  </button>
-</div>
-
-<script>
-  function setCookie(name, value, days = 3650) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-  }
-
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
-
-  // Show cookie banner if user hasn't accepted cookies yet
-  if (!getCookie("cookiesAccepted")) {
-    document.getElementById("cookieConsent").style.display = "block";
-  }
-
-  // Handle accept button
-  document.getElementById("acceptCookies").addEventListener("click", function() {
-    setCookie("cookiesAccepted", "true");
-    document.getElementById("cookieConsent").style.display = "none";
-  });
-</script>
+    position: fixed;
+    bottom: 0;
+    background: #222;
+    color: white;
+    width: 100%;
+    padding: 1em;
+    text-align: center;
+    z-index: 9999;
+    display: none;">
+    This site uses cookies to remember your access key. 
+    <button id="acceptCookies" style="margin-left: 10px; padding: 0.5em 1em; background: #e50914; border: none; color: white; border-radius: 5px; cursor: pointer;">
+      Accept
+    </button>
+  </div>
 
   <script>
     let correctKey = null;
 
-    async function fetchKey() {
-      try {
-        const response = await fetch("protected/key.json");
-        const data = await response.json();
-        correctKey = data.key;
-        autoRedirectIfValid();
-      } catch (err) {
-        document.getElementById('errorMsg').textContent = "Failed to load key.";
-      }
-    }
-
-    function setCookie(name, value) {
+    function setCookie(name, value, days = 3650) {
       const d = new Date();
-      d.setTime(d.getTime() + (3650 * 24 * 60 * 60 * 1000)); // 10 years
+      d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
       document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
     }
 
@@ -124,25 +88,52 @@
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
+    function showError(message) {
+      document.getElementById('errorMsg').textContent = message;
+    }
+
+    async function fetchKeyAndInit() {
+      try {
+        const response = await fetch("protected/key.json");
+        const data = await response.json();
+        correctKey = data.key;
+
+        const storedKey = getCookie('authKey');
+        if (storedKey && storedKey === correctKey) {
+          window.location.href = "home.html";
+        }
+      } catch (err) {
+        showError("Failed to load key.");
+      }
+    }
+
     function checkKey() {
       const inputKey = document.getElementById('keyInput').value;
+      if (!correctKey) {
+        showError("Key not loaded yet. Please wait.");
+        return;
+      }
       if (inputKey === correctKey) {
         setCookie('authKey', inputKey);
         window.location.href = "home.html";
       } else {
-        document.getElementById('errorMsg').textContent = "Incorrect key. Try again.";
+        showError("Incorrect key. Try again.");
       }
     }
 
-    function autoRedirectIfValid() {
-      const storedKey = getCookie('authKey');
-      if (storedKey === correctKey) {
-        window.location.href = "home.html";
-      }
+    // Show cookie banner if not accepted
+    if (!getCookie("cookiesAccepted")) {
+      document.getElementById("cookieConsent").style.display = "block";
     }
 
-    // Run on page load
-    fetchKey();
+    // Accept cookie handler
+    document.getElementById("acceptCookies").addEventListener("click", function() {
+      setCookie("cookiesAccepted", "true");
+      document.getElementById("cookieConsent").style.display = "none";
+    });
+
+    // Start logic on page load
+    window.onload = fetchKeyAndInit;
   </script>
 </body>
 </html>
