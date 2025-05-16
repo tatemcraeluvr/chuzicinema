@@ -288,22 +288,14 @@
   }
 
   async function watchMovie(imdbID) {
-    const embedURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
-    let finalURL = embedURL;
+ const finalURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
 
-    try {
-      const test = await fetch(embedURL, { method: 'HEAD' });
-      if (!test.ok) throw new Error('2embed down');
-    } catch {
-      finalURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
-    }
-
-    const newTab = window.open("about:blank", "_blank");
-    newTab.document.write(`
-      <body style="margin:0;background:#000;">
-        <iframe src="${finalURL}" 
-                style="width:100%;height:100vh;border:none;" 
-                allowfullscreen>
+  const newTab = window.open("about:blank", "_blank");
+  newTab.document.write(`
+    <body style="margin:0;background:#000;">
+      <iframe src="${finalURL}" 
+              style="width:100%;height:100vh;border:none;" 
+              allowfullscreen>
         </iframe>
       </body>
     `);
