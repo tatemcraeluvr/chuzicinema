@@ -1,0 +1,22 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]  # Change 'main' if your default branch is different
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Replace placeholder with secret
+        run: |
+          find . -type f -name "*.html" -exec sed -i "s|__ACCESS_KEY__|${{ secrets.ACCESS_KEY }}|g" {} +
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./  # Or ./docs if your HTML is inside docs/
