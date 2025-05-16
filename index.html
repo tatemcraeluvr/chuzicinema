@@ -148,150 +148,167 @@
 
   <div id="result" class="results"></div>
 
-  <script>
-    const API_KEY = '951a6e7d';
-    let currentMode = 'movie';
 
-    function setMode(mode) {
-      currentMode = mode;
-      document.getElementById('modeMovie').classList.remove('active');
-      document.getElementById('modeSeries').classList.remove('active');
-      document.getElementById('mode' + (mode === 'movie' ? 'Movie' : 'Series')).classList.add('active');
+<script>
+  const API_KEY = '951a6e7d';
+  let currentMode = 'movie';
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('modeMovie').classList.remove('active');
+    document.getElementById('modeSeries').classList.remove('active');
+    document.getElementById('mode' + (mode === 'movie' ? 'Movie' : 'Series')).classList.add('active');
+  }
+
+  async function findMedia() {
+    const input = document.getElementById('movieInput').value.trim();
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '';
+
+    if (!input) {
+      resultDiv.innerHTML = 'Please enter a title.';
+      return;
     }
 
-    async function findMedia() {
-      const input = document.getElementById('movieInput').value.trim();
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = '';
+    try {
+      const searchUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(input)}&type=${currentMode}`;
+      const searchRes = await fetch(searchUrl);
+      const searchData = await searchRes.json();
 
-      if (!input) {
-        resultDiv.innerHTML = 'Please enter a title.';
+      if (searchData.Response === 'False' || !searchData.Search?.length) {
+        resultDiv.innerHTML = 'Nothing found.';
         return;
       }
 
-      try {
-        const searchUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(input)}&type=${currentMode}`;
-        const searchRes = await fetch(searchUrl);
-        const searchData = await searchRes.json();
+      const filtered = searchData.Search.filter(item => item.Type === currentMode);
+      for (const item of filtered) {
+        const detailsUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${item.imdbID}`;
+        const detailsRes = await fetch(detailsUrl);
+        const movie = await detailsRes.json();
 
-        if (searchData.Response === 'False' || !searchData.Search?.length) {
-          resultDiv.innerHTML = 'Nothing found.';
-          return;
-        }
-
-        const filtered = searchData.Search.filter(item => item.Type === currentMode);
-        for (const item of filtered) {
-          const detailsUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${item.imdbID}`;
-          const detailsRes = await fetch(detailsUrl);
-          const movie = await detailsRes.json();
-
-          const quality = ['movie', 'series'].includes(movie.Type) ? 'HD' : 'SD';
-          resultDiv.innerHTML += `
-            <div class="card">
-              ${movie.Poster !== 'N/A' ? `<img src="${movie.Poster}" alt="Poster" />` : ''}
-              <strong>${movie.Title}</strong>
-              <div class="rating">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff4b4b"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                ${movie.imdbRating}
-              </div>
-              <div class="quality">${quality}</div>
-              <button class="watch-btn" onclick="openPlayer('${movie.imdbID}', '${movie.Type}', \`${movie.Title.replace(/`/g, '\\`')}\`)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M5 3L19 12L5 21V3Z"/>
-                </svg>
-                Watch now
-              </button>
+        const quality = ['movie', 'series'].includes(movie.Type) ? 'HD' : 'SD';
+        resultDiv.innerHTML += `
+          <div class="card">
+            ${movie.Poster !== 'N/A' ? `<img src="${movie.Poster}" alt="Poster" />` : ''}
+            <strong>${movie.Title}</strong>
+            <div class="rating">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff4b4b"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              ${movie.imdbRating}
             </div>
-          `;
-        }
-      } catch (error) {
-        console.error(error);
-        resultDiv.innerHTML = 'Error fetching data.';
-      }
-    }
-
-    function openPlayer(imdbID, type, title) {
-      const win = window.open('', '_blank');
-      if (type === 'movie') {
-        const test2embed = new Image();
-        test2embed.src = `https://www.2embed.cc/embed/${imdbID}`;
-        test2embed.onload = () => {
-          win.document.write(`<iframe src="https://www.2embed.cc/embed/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`);
-        };
-        test2embed.onerror = () => {
-          win.document.write(`<iframe src="https://vidsrc.xyz/embed/movie/${imdbID}" style="width:100%;height:100vh;border:none;" allowfullscreen></iframe>`);
-        };
-      } else {
-        win.document.write(`
-          <style>
-            body { margin: 0; display: flex; background: #0d0d0d; color: white; font-family: sans-serif; }
-            iframe { border: none; width: 100%; height: 100vh; }
-            .sidebar {
-              width: 220px;
-              background: #1a1a1a;
-              padding: 1em;
-              display: flex;
-              flex-direction: column;
-              gap: 1em;
-            }
-            select {
-              padding: 0.5em;
-              border-radius: 5px;
-              border: none;
-              background: #333;
-              color: white;
-            }
-          </style>
-          <div class="sidebar">
-            <h3>${title}</h3>
-            <label>Season: <select id="seasonSelect"></select></label>
-            <label>Episode: <select id="episodeSelect"></select></label>
+            <div class="quality">${quality}</div>
+            <button class="watch-btn" onclick="openPlayer('${movie.imdbID}', '${movie.Type}', \`${movie.Title.replace(/`/g, '\\`')}\`)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path d="M5 3L19 12L5 21V3Z"/>
+              </svg>
+              Watch now
+            </button>
           </div>
-          <iframe id="tvPlayer" src=""></iframe>
-          <script>
-            const imdbID = "${imdbID}";
-            async function loadSeasons() {
-              const res = await fetch("https://www.omdbapi.com/?apikey=${API_KEY}&i=" + imdbID + "&type=series");
-              const data = await res.json();
-              const total = parseInt(data.totalSeasons);
-              const select = document.getElementById("seasonSelect");
-              for (let i = 1; i <= total; i++) {
-                select.innerHTML += "<option value='" + i + "'>Season " + i + "</option>";
-              }
-              select.value = "1";
-              loadEpisodes(1);
-            }
-
-            async function loadEpisodes(season) {
-              const res = await fetch("https://www.omdbapi.com/?apikey=${API_KEY}&i=" + imdbID + "&Season=" + season);
-              const data = await res.json();
-              const select = document.getElementById("episodeSelect");
-              select.innerHTML = "";
-              data.Episodes.forEach((ep, i) => {
-                select.innerHTML += "<option value='" + (i+1) + "'>Episode " + (i+1) + "</option>";
-              });
-              select.value = "1";
-              loadPlayer(season, 1);
-            }
-
-            function loadPlayer(season, episode) {
-              document.getElementById("tvPlayer").src = "https://vidsrc.xyz/embed/tv?imdb=" + imdbID + "&s=" + season + "&e=" + episode;
-            }
-
-            document.getElementById("seasonSelect").addEventListener("change", e => {
-              loadEpisodes(e.target.value);
-            });
-
-            document.getElementById("episodeSelect").addEventListener("change", e => {
-              const season = document.getElementById("seasonSelect").value;
-              loadPlayer(season, e.target.value);
-            });
-
-            loadSeasons();
-          <\/script>
-        `);
+        `;
       }
+    } catch (error) {
+      console.error(error);
+      resultDiv.innerHTML = 'Error fetching data.';
     }
-  </script>
+  }
+
+  async function openPlayer(imdbID, type, title) {
+    if (type === 'movie') {
+      await watchMovie(imdbID);
+    } else {
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <style>
+          body { margin: 0; display: flex; background: #0d0d0d; color: white; font-family: sans-serif; }
+          iframe { border: none; width: 100%; height: 100vh; }
+          .sidebar {
+            width: 220px;
+            background: #1a1a1a;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+          }
+          select {
+            padding: 0.5em;
+            border-radius: 5px;
+            border: none;
+            background: #333;
+            color: white;
+          }
+        </style>
+        <div class="sidebar">
+          <h3>${title}</h3>
+          <label>Season: <select id="seasonSelect"></select></label>
+          <label>Episode: <select id="episodeSelect"></select></label>
+        </div>
+        <iframe id="tvPlayer" src=""></iframe>
+        <script>
+          const imdbID = "${imdbID}";
+          async function loadSeasons() {
+            const res = await fetch("https://www.omdbapi.com/?apikey=${API_KEY}&i=" + imdbID + "&type=series");
+            const data = await res.json();
+            const total = parseInt(data.totalSeasons);
+            const select = document.getElementById("seasonSelect");
+            for (let i = 1; i <= total; i++) {
+              select.innerHTML += "<option value='" + i + "'>Season " + i + "</option>";
+            }
+            select.value = "1";
+            loadEpisodes(1);
+          }
+
+          async function loadEpisodes(season) {
+            const res = await fetch("https://www.omdbapi.com/?apikey=${API_KEY}&i=" + imdbID + "&Season=" + season);
+            const data = await res.json();
+            const select = document.getElementById("episodeSelect");
+            select.innerHTML = "";
+            data.Episodes.forEach((ep, i) => {
+              select.innerHTML += "<option value='" + (i+1) + "'>Episode " + (i+1) + "</option>";
+            });
+            select.value = "1";
+            loadPlayer(season, 1);
+          }
+
+          function loadPlayer(season, episode) {
+            document.getElementById("tvPlayer").src = "https://vidsrc.xyz/embed/tv?imdb=" + imdbID + "&s=" + season + "&e=" + episode;
+          }
+
+          document.getElementById("seasonSelect").addEventListener("change", e => {
+            loadEpisodes(e.target.value);
+          });
+
+          document.getElementById("episodeSelect").addEventListener("change", e => {
+            const season = document.getElementById("seasonSelect").value;
+            loadPlayer(season, e.target.value);
+          });
+
+          loadSeasons();
+        <\/script>
+      `);
+    }
+  }
+
+  async function watchMovie(imdbID) {
+    const embedURL = `https://www.2embed.cc/embed/${imdbID}`;
+    let finalURL = embedURL;
+
+    try {
+      const test = await fetch(embedURL, { method: 'HEAD' });
+      if (!test.ok) throw new Error('2embed down');
+    } catch {
+      finalURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
+    }
+
+    const newTab = window.open("about:blank", "_blank");
+    newTab.document.write(`
+      <body style="margin:0;background:#000;">
+        <iframe src="${finalURL}" 
+                style="width:100%;height:100vh;border:none;" 
+                allowfullscreen>
+        </iframe>
+      </body>
+    `);
+  }
+</script>
+
 </body>
 </html>
