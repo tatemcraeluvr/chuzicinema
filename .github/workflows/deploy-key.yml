@@ -1,22 +1,25 @@
-name: Deploy Site with Key
+name: Deploy Key
 
 on:
   push:
-    branches: [main]  # or your default branch
+    branches: [ main ]  # or your deploy branch
 
 jobs:
-  build:
+  generate-key:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Write key to JSON file
+      - name: Create protected/key.json from secret
         run: |
-          mkdir -p public/protected
-          echo "{\"key\": \"${{ secrets.ACCESS_KEY }}\"}" > public/protected/key.json
+          mkdir -p protected
+          echo "{ \"key\": \"${{ secrets.ACCESS_KEY }}\" }" > protected/key.json
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+      - name: Commit and push key.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add protected/key.json
+          git commit -m "Add key.json from secret" || echo "No changes to commit"
+          git push
