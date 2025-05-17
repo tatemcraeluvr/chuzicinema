@@ -35,7 +35,7 @@ header {
 }
 
 /* Tab Buttons */
-.tab-button {
+.topbar button {
   background: transparent;
   border: 2px solid #e50914;
   color: #e50914;
@@ -47,15 +47,15 @@ header {
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5em;
+  gap: 0.5em; /* space between icon and text */
 }
 
-.tab-button i {
+.topbar button i {
   font-size: 14px;
 }
 
-.tab-button.active,
-.tab-button:hover {
+.topbar button.active,
+.topbar button:hover {
   background-color: #e50914;
   color: #fff;
 }
@@ -233,13 +233,8 @@ footer {
   <header>
     <div class="topbar">
         <img src="https://raw.githubusercontent.com/tatemcraeluvr/chuzicinema/main/chuzi%20flix%20logo.png" alt="ChuziFlix Logo" style="height: 36px; margin-right: 1em;">
-<div class="button-group">
-  <button class="btn active">
-    <i class="fas fa-play"></i> Movies
-  </button>
-  <button class="btn">
-    <i class="fas fa-list"></i> TV Shows
-  </button>
+    <button class="btn active"><i class="fas fa-play"></i> Movies</button>
+    <button class="btn"><i class="fas fa-list"></i> TV Shows</button>
 </div>
 
     </div>
