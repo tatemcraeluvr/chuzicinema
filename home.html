@@ -229,18 +229,36 @@ footer {
   margin-top: 2em;
   font-size: 14px;
 }
-    .watch-card, .history-card {
-  background: #1f1f1f;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px #00000050;
-  text-align: center;
-  padding: 0.5rem;
+.movie-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
-.watch-card img, .history-card img {
+
+.movie-card {
+  width: 150px;
+  background-color: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+  color: white;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+}
+
+.movie-card img {
   width: 100%;
   height: auto;
-  border-radius: 8px;
+  display: block;
+}
+
+.movie-card-title {
+  padding: 8px;
 }
   </style>
 </head>
@@ -514,40 +532,58 @@ function resumePlayback(title, timestamp) {
 // Render Continue Watching section
 function renderContinueWatching() {
   const container = document.getElementById("continue-watching");
+  container.innerHTML = "<h2>Continue Watching</h2>";
+
   const history = JSON.parse(localStorage.getItem("watchHistory") || "[]");
 
-  const incomplete = history.filter(item => item.timestamp > 0 && item.timestamp < 7200); // < 2 hours
+  const list = document.createElement("div");
+  list.className = "movie-list";
 
-  container.innerHTML = incomplete.length === 0
-    ? "<p>No content to continue watching.</p>"
-    : incomplete.map(item => `
-      <div class="watch-card">
-        <img src="${item.poster}" alt="${item.title}" />
-        <div>
-          <strong>${item.title}</strong><br>
-          <button onclick="resumePlayback('${item.title}', ${item.timestamp})">Resume</button>
-        </div>
-      </div>
-    `).join("");
+  history.forEach((entry) => {
+    const card = document.createElement("div");
+    card.className = "movie-card";
+    card.innerHTML = `
+      <img src="${entry.poster}" alt="${entry.title}">
+      <div class="movie-card-title">${entry.title}</div>
+    `;
+    list.appendChild(card);
+  });
+
+  container.appendChild(list);
 }
+
 
 // Render full Watch History
 function renderWatchHistory() {
   const container = document.getElementById("watch-history");
+  container.innerHTML = "<h2>Watch History</h2>";
+
   const history = JSON.parse(localStorage.getItem("watchHistory") || "[]");
 
-  container.innerHTML = history.length === 0
-    ? "<p>No watch history yet.</p>"
-    : history.map(item => `
-      <div class="history-card">
-        <img src="${item.poster}" alt="${item.title}" />
-        <div>
-          <strong>${item.title}</strong><br>
-          Watched: ${new Date(item.watchedAt).toLocaleString()}
-        </div>
-      </div>
-    `).join("");
+  if (history.length === 0) {
+    container.innerHTML += "<p>No watch history yet.</p>";
+    return;
+  }
+
+  const list = document.createElement("div");
+  list.className = "movie-list";
+
+  history.forEach((entry) => {
+    const card = document.createElement("div");
+    card.className = "movie-card";
+    card.innerHTML = `
+      <img src="${entry.poster}" alt="${entry.title}">
+      <div class="movie-card-title">${entry.title}</div>
+    `;
+    card.onclick = () => {
+      openPlayer(entry.id, entry.title, entry.poster);
+    };
+    list.appendChild(card);
+  });
+
+  container.appendChild(list);
 }
+
 
 // Call these on page load
 window.addEventListener("DOMContentLoaded", () => {
