@@ -467,9 +467,17 @@ footer {
     }
   }
 
-  async function watchMovie(imdbID) {
- const finalURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
+async function watchMovie(imdbID) {
+  const res = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&i=${imdbID}`);
+  const movie = await res.json();
 
+  saveToWatchHistory({
+    title: movie.Title,
+    poster: movie.Poster,
+    timestamp: 1 // Or 0 if they just started
+  });
+
+  const finalURL = `https://vidsrc.xyz/embed/movie/${imdbID}`;
   const newTab = window.open("about:blank", "_blank");
   newTab.document.write(`
     <body style="margin:0;background:#000;">
@@ -478,8 +486,8 @@ footer {
               allowfullscreen>
         </iframe>
       </body>
-    `);
-  }
+  `);
+}
 </script>
 <script>
 // Save playback info (call this when a user starts or stops watching)
