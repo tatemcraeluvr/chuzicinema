@@ -532,7 +532,6 @@ function resumePlayback(title, timestamp) {
 // Render Continue Watching section
 function renderContinueWatching() {
   const container = document.getElementById("continue-watching");
-  container.innerHTML = "<h2>Continue Watching</h2>";
 
   const history = JSON.parse(localStorage.getItem("watchHistory") || "[]");
 
@@ -556,7 +555,6 @@ function renderContinueWatching() {
 // Render full Watch History
 function renderWatchHistory() {
   const container = document.getElementById("watch-history");
-  container.innerHTML = "<h2>Watch History</h2>";
 
   const history = JSON.parse(localStorage.getItem("watchHistory") || "[]");
 
