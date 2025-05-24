@@ -1,0 +1,51 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.wave-banner {
+  height: 90px;
+  background: #003366;
+  position: relative;
+}
+
+.wave-banner::after {
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="1" d="M0,160L60,149.3C120,139,240,117,360,122.7C480,128,600,160,720,176C840,192,960,192,1080,170.7C1200,149,1320,107,1380,85.3L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>') no-repeat bottom center;
+  background-size: cover;
+}
+
+.content {
+  padding: 20px;
+}
+
+.message {
+  font-size: 16px;
+  margin: 20px auto;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+a {
+  color: #0000cc;
+  text-decoration: underline;
+}
+
+hr {
+  margin: 40px auto;
+  width: 80%;
+}
+
+.logo {
+  margin-top: 30px;
+  width: 200px;
+}
