@@ -1,29 +1,80 @@
 <!DOCTYPE html>
+-- made with chatgpt cause bitch i dont got time to do this dumb shit
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Notice: Site Unavailable</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sammy Ad Popup</title>
+  <style>
+    :root {
+      --bg: rgba(0,0,0,.65);
+      --card: #fff;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #111827;
+      --btn: #111827;
+      --btnText: #fff;
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: var(--text); }
+
+    /* Overlay */
+    .overlay { position: fixed; inset: 0; background: var(--bg); display: grid; place-items: center; padding: 24px; }
+
+    /* Popup Card */
+    .ad-card { width: min(520px, 94vw); background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); position: relative; }
+
+    .ad-media { position: relative; aspect-ratio: 16/9; background: #000; }
+    .ad-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+    .ad-body { padding: 18px 18px 20px; }
+    .ad-kicker { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .ad-title { font-size: clamp(18px, 2.4vw, 22px); line-height: 1.25; font-weight: 800; margin: 0 0 8px; }
+    .ad-desc { font-size: 14px; color: var(--muted); margin: 0 0 14px; }
+
+    .ad-actions { display: flex; gap: 10px; }
+    .ad-btn { appearance: none; border: 0; border-radius: 999px; padding: 12px 18px; background: var(--btn); color: var(--btnText); font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .ad-btn:active { transform: translateY(1px); }
+
+    .ad-link { font-size: 13px; color: var(--accent); text-decoration: underline; }
+
+    /* Close button */
+    .close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 999px; background: rgba(17,24,39,.7); color: white; border: 0; cursor: pointer; }
+    .close:active { transform: translateY(1px); }
+
+    /* Optional: demo page background behind popup */
+    .demo-bg { position: fixed; inset: 0; background: repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 10px, #e5e7eb 10px, #e5e7eb 20px); filter: saturate(.6); }
+
+    /* Bonus: example ad tiles with same creative */
+    .ad-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding: 24px; max-width: 1100px; margin: 80vh auto 40px; }
+    .tile { border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+    .tile .ad-media { aspect-ratio: 4/3; }
+    .tile .ad-body { padding: 14px; }
+    .tile .ad-title { font-size: 16px; }
+  </style>
 </head>
 <body>
-  <div class="wave-banner"></div>
+  <div class="demo-bg" aria-hidden="true"></div>
 
-  <div class="content">
-    <p class="message">
-      Due to this site's involvement in unauthorized distribution of copyrighted material, it has been taken offline.<br>
-      We regret any inconvenience this may cause.<br>
-      For more information about legal alternatives, visit <a href="https://www.usa.gov" target="_blank">USA.gov</a>.
-    </p>
-
-    <hr>
-
-    <p class="message">
-      Este sitio ha sido dado de baja por distribuir material con derechos de autor sin autorización.<br>
-      Lamentamos profundamente las molestias que esto pueda causar.<br>
-      Para conocer alternativas legales, visite <a href="https://gobierno.usa.gov" target="_blank">GobiernoUSA.gov</a>.
-    </p>
-
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/USA.gov_logo_as_of_2017.png/1200px-USA.gov_logo_as_of_2017.png" alt="USA.gov Logo" class="logo">
+  <!-- Popup Overlay -->
+  <div class="overlay" id="popup">
+    <article class="ad-card" role="dialog" aria-labelledby="title" aria-describedby="desc">
+      <button class="close" aria-label="Close" onclick="document.getElementById('popup').remove()">✕</button>
+      <div class="ad-media">
+        <img src="https://pbs.twimg.com/profile_images/1937757285113028608/gtpBP06m_400x400.jpg" alt="Sammy profile" />
+      </div>
+      <div class="ad-body">
+        <div class="ad-kicker">Sponsored</div>
+        <h1 class="ad-title" id="title">Sammy, Rich &amp; Single 🔥🔥 😅😅</h1>
+        <p class="ad-desc" id="desc">Click here to see more</p>
+        <div class="ad-actions">
+          <a class="ad-btn" href="https://pornhub.com" target="_blank" rel="noopener">See it bounce here</a>
+        </div>
+      </div>
+    </article>
   </div>
 </body>
 </html>
+
